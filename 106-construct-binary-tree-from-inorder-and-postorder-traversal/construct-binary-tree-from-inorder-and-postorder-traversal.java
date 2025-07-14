@@ -15,32 +15,23 @@
  */
 class Solution {
     public TreeNode buildTree(int[] inorder, int[] postorder) {
-        
-        HashMap<Integer, Integer> valueInorderIndexMap = new HashMap<>();
-        int n = inorder.length;
-        for(int idx=0; idx < n; ++idx){
-            valueInorderIndexMap.put(inorder[idx], idx);
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < inorder.length; ++i) {
+            map.put(inorder[i], i);
         }
-
-        TreeNode completeTree = buildTreeHelper(postorder, inorder, 0, n-1, 0, n-1,  valueInorderIndexMap);
-        return completeTree;
+        return buildTreeHelper(postorder, 0, postorder.length - 1, inorder, 0, inorder.length - 1, map);
     }
 
-    public TreeNode buildTreeHelper(int[] postorder, int[] inorder, int postStart, int postEnd,int inStart, int inEnd, HashMap<Integer, Integer> valueInorderIndexMap){
-        
-        if(postStart > postEnd || inStart>inEnd){
-            return null;
-        }
-        int rootNodeValue = postorder[postEnd];
+    private TreeNode buildTreeHelper(int[] postorder, int poststart, int postend,int[] inorder, int instart, int inend, Map<Integer, Integer> map) {
+        if (poststart > postend || instart > inend) return null;
 
-        TreeNode root = new TreeNode(rootNodeValue);
-        int inorderIndex = valueInorderIndexMap.get(rootNodeValue);
-        int countRightSubTreeNodes = inEnd - inorderIndex;
+        TreeNode node = new TreeNode(postorder[postend]); 
+        int x = map.get(postorder[postend]);              
+        int y = x - instart;                              
 
-        root.left = buildTreeHelper(postorder, inorder, postStart, 
-postEnd - countRightSubTreeNodes-1, inStart, inorderIndex - 1, valueInorderIndexMap);
-        root.right = buildTreeHelper(postorder, inorder, postStart - countRightSubTreeNodes, postEnd-1, inorderIndex + 1, inEnd, valueInorderIndexMap);
-        
-        return root;
+        node.left = buildTreeHelper(postorder, poststart, poststart + y - 1, inorder,   instart,  x - 1, map);
+        node.right = buildTreeHelper(postorder, poststart + y, postend - 1, inorder, x + 1, inend, map);
+
+        return node;
     }
 }
